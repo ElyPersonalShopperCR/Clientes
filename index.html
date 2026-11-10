@@ -120,8 +120,8 @@ function mostrarResultado(d, tel, nombreCompleto){
   $("rBag").textContent = "Bolsa #" + d.bolsa;
   var t = soloDigitos(tel);
   var num = t.length === 8 ? PAIS + t : t;
-  var msg = "Hola" + (nombreCompleto ? ", soy " + nombreCompleto : "") + ". Mi código de cliente es " +
-            d.codigo + " y mi número de bolsa es el #" + d.bolsa + ".";
+  var msg = "Hola, gracias por unirte a nuestra comunidad. Tu código de cliente es " +
+            d.codigo + " y tu número de bolsa es el #" + d.bolsa + ".";
   $("waBtn").href = "https://wa.me/" + (NEGOCIO_WA || num) + "?text=" + encodeURIComponent(msg);
   show("result");
 }
