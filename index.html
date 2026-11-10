@@ -22,6 +22,7 @@ button:disabled{opacity:.6}
 .ok{text-align:center}
 .code{font-size:2.6rem;font-weight:800;letter-spacing:.04em;color:var(--ac)}
 .meta{color:var(--mu)}
+a.wa{display:block;text-decoration:none;text-align:center;margin-top:16px;padding:12px 18px;border-radius:10px;font-weight:600;background:#25d366;color:#0b2a16}
 </style>
 </head>
 <body>
@@ -44,13 +45,19 @@ button:disabled{opacity:.6}
     <div class="meta">¡Listo! Tu código de cliente es</div>
     <div class="code" id="rCode"></div>
     <div id="rBag" style="font-size:1.2rem;font-weight:600"></div>
-    <p class="meta">Guarda o toma captura de esta pantalla.</p>
+    <a class="wa" id="waBtn" href="#" target="_blank" rel="noopener">Enviarme mi código por WhatsApp</a>
+    <p class="meta">También puedes tomar captura de esta pantalla.</p>
   </section>
 </main>
 
 <script>
 // 👇 PEGA AQUÍ la URL que te da Google Apps Script al implementar (termina en /exec)
 var API_URL = "https://script.google.com/macros/s/AKfycbxQuWCgN5Q1OixRWw-kST1sV_T25wlF-k0M8nDS12PgsYuRHvZTHZnZwWRe82cN_AU/exec";
+
+// Opcional: número de WhatsApp de tu negocio con código de país (ej. "50688887777").
+// Si lo dejas vacío, el mensaje se abre en el chat del propio cliente para que lo guarde.
+var NEGOCIO_WA = "";
+var PAIS = "506"; // Costa Rica
 
 var $ = function(id){return document.getElementById(id)};
 
@@ -73,6 +80,11 @@ $("btn").onclick = async function(){
     if(!d.ok) throw new Error(d.error || "Error");
     $("rCode").textContent = d.codigo;
     $("rBag").textContent = (d.repetido ? "Ya estabas inscrito · " : "") + "Bolsa #" + d.bolsa;
+    var t = tel.replace(/\D/g,"");
+    var numCliente = t.length === 8 ? PAIS + t : t;
+    var msg = "Hola, soy " + nombre + " " + apellidos + ". Mi código de cliente es " +
+              d.codigo + " y mi número de bolsa es el #" + d.bolsa + ".";
+    $("waBtn").href = "https://wa.me/" + (NEGOCIO_WA || numCliente) + "?text=" + encodeURIComponent(msg);
     $("formCard").hidden = true;
     $("result").hidden = false;
   }catch(e){
