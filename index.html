@@ -16,16 +16,24 @@ h1{font-size:1.4rem;margin:0 0 4px;color:var(--ac);text-align:center}
 .sub{color:var(--mu);margin:0 0 18px;text-align:center}
 .card{background:var(--card);border:1px solid var(--bd);border-top:4px solid var(--gold);border-radius:16px;padding:20px;box-shadow:0 6px 22px rgba(123,63,176,.12)}
 label{display:block;font-size:.85rem;color:var(--mu);margin:12px 0 4px}
-input{width:100%;padding:12px;border:1px solid var(--bd);border-radius:10px;background:#fbf8fe;color:var(--tx);font:inherit}
+input[type=text],input[type=tel]{width:100%;padding:12px;border:1px solid var(--bd);border-radius:10px;background:#fbf8fe;color:var(--tx);font:inherit}
 input:focus{outline:2px solid var(--ac);border-color:transparent;background:#fff}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:.85rem;color:var(--mu)}
+.chk input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--ac)}
 button{cursor:pointer;border:0;border-radius:12px;padding:13px 18px;font:inherit;font-weight:700;background:var(--ac);color:var(--ac2);margin-top:18px;width:100%}
 button:hover{filter:brightness(1.08)}
 button:disabled{opacity:.6}
+.link{background:none;border:0;color:var(--ac);text-decoration:underline;font-weight:600;font-size:.9rem;width:auto;padding:0;margin-top:14px;cursor:pointer}
+.center{text-align:center}
 .err{color:var(--err);font-size:.9rem;margin-top:10px;min-height:1.2em}
 .ok{text-align:center}
 .code{font-size:2.6rem;font-weight:800;letter-spacing:.04em;color:var(--ac)}
 .meta{color:var(--mu)}
+.small{font-size:.8rem}
 a.wa{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;text-align:center;margin-top:16px;padding:13px 18px;border-radius:12px;font-weight:700;background:#25d366;color:#0b2a16}
+.hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+footer{margin-top:22px;text-align:center;color:var(--mu);font-size:.85rem}
+footer a{color:var(--ac);font-weight:600;text-decoration:none;margin:0 8px}
 </style>
 </head>
 <body>
@@ -36,13 +44,35 @@ a.wa{display:flex;align-items:center;justify-content:center;gap:10px;text-decora
 
   <section class="card" id="formCard">
     <label for="nombre">Nombre</label>
-    <input id="nombre" autocomplete="given-name">
+    <input type="text" id="nombre" autocomplete="given-name">
     <label for="apellidos">Apellidos</label>
-    <input id="apellidos" autocomplete="family-name">
+    <input type="text" id="apellidos" autocomplete="family-name">
     <label for="tel">Número de teléfono</label>
-    <input id="tel" type="tel" inputmode="tel" autocomplete="tel">
+    <input type="tel" id="tel" inputmode="tel" autocomplete="tel">
+
+    <div class="hp" aria-hidden="true">
+      <label for="web">No llenar este campo</label>
+      <input type="text" id="web" tabindex="-1" autocomplete="off">
+    </div>
+
+    <label class="chk" for="acepto">
+      <input type="checkbox" id="acepto">
+      <span>Acepto que mis datos (nombre y teléfono) se usen únicamente para gestionar mi bolsa y contactarme.</span>
+    </label>
+
     <div class="err" id="err"></div>
     <button id="btn">Crear mi Código</button>
+    <div class="center"><button class="link" id="irConsulta" type="button">Ya me inscribí, ver mi código</button></div>
+  </section>
+
+  <section class="card" id="consultCard" hidden>
+    <strong>Recuperar mi código</strong>
+    <p class="meta small" style="margin:4px 0 0">Escribe el número de teléfono con el que te inscribiste.</p>
+    <label for="telC">Número de teléfono</label>
+    <input type="tel" id="telC" inputmode="tel" autocomplete="tel">
+    <div class="err" id="errC"></div>
+    <button id="btnC">Ver mi código</button>
+    <div class="center"><button class="link" id="volver" type="button">Volver</button></div>
   </section>
 
   <section class="card ok" id="result" hidden>
@@ -52,55 +82,106 @@ a.wa{display:flex;align-items:center;justify-content:center;gap:10px;text-decora
     <a class="wa" id="waBtn" href="#" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span>Enviarme mi código por WhatsApp</span></a>
     <p class="meta">También puedes tomar captura de esta pantalla.</p>
   </section>
+
+  <footer id="redes"></footer>
 </main>
 
 <script>
 // URL de tu Google Apps Script
 var API_URL = "https://script.google.com/macros/s/AKfycbxQuWCgN5Q1OixRWw-kST1sV_T25wlF-k0M8nDS12PgsYuRHvZTHZnZwWRe82cN_AU/exec";
 
-// Opcional: número de WhatsApp de tu negocio con código de país (ej. "50688887777").
-// Si lo dejas vacío, el mensaje se abre en el chat del propio cliente para que lo guarde.
+// ---- Configuración opcional ----
+// WhatsApp de tu negocio con código de país (ej. "50688887777"). Si queda vacío,
+// el botón abre el chat del propio cliente para que guarde su código.
 var NEGOCIO_WA = "";
+// Enlaces de tus redes (déjalos vacíos para ocultarlos). Ej: "https://instagram.com/tuusuario"
+var INSTAGRAM = "";
+var FACEBOOK = "";
 var PAIS = "506"; // Costa Rica
+// --------------------------------
 
 var $ = function(id){return document.getElementById(id)};
+var t0 = Date.now();
 
+function post(payload){
+  return fetch(API_URL, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
+  }).then(function(r){return r.json()});
+}
+function soloDigitos(t){return String(t).replace(/\D/g,"")}
+function show(id){["formCard","consultCard","result"].forEach(function(x){$(x).hidden = (x!==id)})}
+
+function mostrarResultado(d, tel, nombreCompleto){
+  $("rCode").textContent = d.codigo;
+  $("rBag").textContent = "Bolsa #" + d.bolsa;
+  var t = soloDigitos(tel);
+  var num = t.length === 8 ? PAIS + t : t;
+  var msg = "Hola" + (nombreCompleto ? ", soy " + nombreCompleto : "") + ". Mi código de cliente es " +
+            d.codigo + " y mi número de bolsa es el #" + d.bolsa + ".";
+  $("waBtn").href = "https://wa.me/" + (NEGOCIO_WA || num) + "?text=" + encodeURIComponent(msg);
+  show("result");
+}
+
+// ---- Crear código ----
 $("btn").onclick = async function(){
   var nombre = $("nombre").value.trim(),
       apellidos = $("apellidos").value.trim(),
       tel = $("tel").value.trim();
   $("err").textContent = "";
   if(!nombre || !apellidos || !tel){ $("err").textContent = "Completa todos los campos."; return; }
-  if(tel.replace(/\D/g,"").length < 7){ $("err").textContent = "El teléfono no parece válido."; return; }
+  if(soloDigitos(tel).length < 7){ $("err").textContent = "El teléfono no parece válido."; return; }
+  if(!$("acepto").checked){ $("err").textContent = "Debes aceptar el uso de tus datos para continuar."; return; }
 
   $("btn").disabled = true; $("btn").textContent = "Enviando…";
   try{
-    var r = await fetch(API_URL, {
-      method: "POST",
-      headers: {"Content-Type": "text/plain;charset=utf-8"},
-      body: JSON.stringify({nombre: nombre, apellidos: apellidos, telefono: tel})
-    });
-    var d = await r.json();
-    if(d.duplicado || d.repetido){
+    var d = await post({accion:"registrar", nombre:nombre, apellidos:apellidos, telefono:tel,
+                        web:$("web").value, t:Date.now()-t0});
+    if(d.duplicado){
       $("err").textContent = "Número telefónico ya está en uso, favor intentar nuevamente.";
-      $("btn").disabled = false; $("btn").textContent = "Crear mi Código";
-      return;
+    } else if(d.limite){
+      $("err").textContent = "Hay muchas solicitudes en este momento. Intenta de nuevo en unos minutos.";
+    } else if(!d.ok){
+      throw new Error(d.error || "Error");
+    } else {
+      mostrarResultado(d, tel, nombre + " " + apellidos);
     }
-    if(!d.ok) throw new Error(d.error || "Error");
-    $("rCode").textContent = d.codigo;
-    $("rBag").textContent = "Bolsa #" + d.bolsa;
-    var t = tel.replace(/\D/g,"");
-    var numCliente = t.length === 8 ? PAIS + t : t;
-    var msg = "Hola, soy " + nombre + " " + apellidos + ". Mi código de cliente es " +
-              d.codigo + " y mi número de bolsa es el #" + d.bolsa + ".";
-    $("waBtn").href = "https://wa.me/" + (NEGOCIO_WA || numCliente) + "?text=" + encodeURIComponent(msg);
-    $("formCard").hidden = true;
-    $("result").hidden = false;
   }catch(e){
     $("err").textContent = "No se pudo completar la inscripción. Intenta de nuevo.";
-    $("btn").disabled = false; $("btn").textContent = "Crear mi Código";
   }
+  $("btn").disabled = false; $("btn").textContent = "Crear mi Código";
 };
+
+// ---- Recuperar código ----
+$("irConsulta").onclick = function(){ $("errC").textContent=""; show("consultCard"); };
+$("volver").onclick = function(){ show("formCard"); };
+$("btnC").onclick = async function(){
+  var tel = $("telC").value.trim();
+  $("errC").textContent = "";
+  if(soloDigitos(tel).length < 7){ $("errC").textContent = "Escribe un teléfono válido."; return; }
+  $("btnC").disabled = true; $("btnC").textContent = "Buscando…";
+  try{
+    var d = await post({accion:"consultar", telefono:tel});
+    if(d.ok){ mostrarResultado(d, tel, ""); }
+    else if(d.noencontrado){ $("errC").textContent = "No encontramos ese número. Verifica que sea el mismo con el que te inscribiste."; }
+    else if(d.limite){ $("errC").textContent = "Demasiadas consultas. Intenta de nuevo en unos minutos."; }
+    else throw new Error(d.error || "Error");
+  }catch(e){
+    $("errC").textContent = "No se pudo consultar. Intenta de nuevo.";
+  }
+  $("btnC").disabled = false; $("btnC").textContent = "Ver mi código";
+};
+
+// ---- Redes ----
+(function(){
+  var items = [];
+  if(NEGOCIO_WA) items.push('<a href="https://wa.me/'+NEGOCIO_WA+'" target="_blank" rel="noopener">WhatsApp</a>');
+  if(INSTAGRAM) items.push('<a href="'+INSTAGRAM+'" target="_blank" rel="noopener">Instagram</a>');
+  if(FACEBOOK) items.push('<a href="'+FACEBOOK+'" target="_blank" rel="noopener">Facebook</a>');
+  $("redes").innerHTML = (items.length ? '<div>Síguenos y escríbenos:<br>'+items.join("")+'</div>' : "") +
+                         '<div style="margin-top:8px">Ely&amp;Family Personal Shopper</div>';
+})();
 </script>
 </body>
 </html>
