@@ -82,7 +82,7 @@ $("btn").onclick = async function(){
     });
     var d = await r.json();
     if(d.duplicado || d.repetido){
-      $("err").textContent = "Este número de teléfono ya está en uso. Cada número solo puede inscribirse una vez.";
+      $("err").textContent = "Número telefónico ya está en uso, favor intentar nuevamente.";
       $("btn").disabled = false; $("btn").textContent = "Crear mi Código";
       return;
     }
