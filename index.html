@@ -71,7 +71,8 @@ input::placeholder{color:#b4a6c6}
 
 /* ---- Tema de Navidad ---- */
 body.navidad{background:radial-gradient(circle at 82% 6%,rgba(255,255,255,.14) 0,transparent 24%),linear-gradient(180deg,#160c33 0%,#2d1660 45%,#5b2a86 100%);background-attachment:fixed}
-body.navidad main{padding-top:46px}
+body.navidad{--sw:clamp(150px,34vw,230px)}
+body.navidad main{padding-top:calc(var(--sw)*.394 + 52px)}
 body.navidad h1{color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.4)}
 body.navidad .sub{color:#eadcf8}
 body.navidad .divider{background:linear-gradient(90deg,transparent,#f5d26b,transparent)}
@@ -94,11 +95,14 @@ radial-gradient(ellipse 130px 40px at 96% 100%,#f6f3ff 98%,transparent 100%)}
 .luces:before{content:"";position:absolute;left:0;right:0;top:9px;height:2px;background:rgba(255,255,255,.28)}
 .luces i{position:absolute;width:10px;height:14px;border-radius:50% 50% 50% 50%/40% 40% 60% 60%;animation:brillo 1.6s ease-in-out infinite}
 @keyframes brillo{0%,100%{opacity:1;box-shadow:0 0 10px 3px currentColor}50%{opacity:.35;box-shadow:0 0 3px 1px currentColor}}
-.santa{position:fixed;top:58px;left:0;width:clamp(170px,40vw,280px);pointer-events:none;z-index:44;transform:translate3d(-320px,0,0);animation:vuela 26s linear 2s infinite}
+.santa{position:fixed;top:36px;left:0;width:var(--sw,200px);pointer-events:none;z-index:44;transform:translate3d(-320px,0,0);animation:vuela 26s linear 2s infinite}
 .santa[hidden]{display:none}
 .santa svg{display:block;width:100%;height:auto;animation:bob 1.3s ease-in-out infinite}
 @keyframes vuela{0%{transform:translate3d(-320px,0,0)}45%,100%{transform:translate3d(calc(100vw + 40px),0,0)}}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
+.regalo{position:fixed;left:0;top:0;border-radius:2px;pointer-events:none;z-index:43;box-shadow:0 0 6px rgba(255,255,255,.35)}
+.regalo:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#f5d26b}
+.regalo:after{content:"";position:absolute;top:50%;left:0;right:0;height:3px;margin-top:-1.5px;background:#f5d26b}
 .rudolph{animation:titila .9s ease-in-out infinite;filter:drop-shadow(0 0 4px #ff5050)}
 @keyframes titila{0%,100%{opacity:1}50%{opacity:.45}}
 @media (prefers-reduced-motion:reduce){.santa,.santa svg,.luces i,.rudolph{animation:none}}
@@ -342,6 +346,33 @@ function iniciarLuces(){
   }
   $("luces").innerHTML = html;
 }
+function iniciarRegalos(){
+  var colores = ["#e53935","#43a047","#1e88e5","#8e24aa","#fb8c00","#ec407a"];
+  setInterval(function(){
+    if(document.hidden) return;
+    var r = $("santa").getBoundingClientRect();
+    var x = r.left + r.width * 0.30, y = r.top + r.height * 0.80;
+    if(x < 20 || x > window.innerWidth - 20) return;
+    if(document.querySelectorAll(".regalo").length > 12) return;
+    var g = document.createElement("div");
+    if(!g.animate) return;
+    g.className = "regalo";
+    var tam = 12 + Math.round(Math.random() * 7);
+    g.style.cssText = "left:" + x + "px;top:" + y + "px;width:" + tam + "px;height:" + tam + "px;background:" + colores[Math.floor(Math.random() * colores.length)];
+    document.body.appendChild(g);
+    var dist = Math.max(60, window.innerHeight - y - 34 - tam);
+    var dx = 30 + Math.random() * 80;
+    var rot = (Math.random() < 0.5 ? -1 : 1) * (120 + Math.random() * 240);
+    var total = Math.round((1500 + dist * 1.1) / 0.85);
+    var fin = "translate(" + dx + "px," + dist + "px) rotate(" + rot + "deg)";
+    var anim = g.animate([
+      {transform: "translate(0,0) rotate(0deg)", opacity: 1, easing: "cubic-bezier(.45,0,1,1)"},
+      {transform: fin, opacity: 1, offset: 0.85},
+      {transform: fin, opacity: 0}
+    ], {duration: total, fill: "forwards"});
+    anim.onfinish = function(){ g.remove(); };
+  }, 650);
+}
 (function(){
   if(!navidadActiva()) return;
   document.body.classList.add("navidad");
@@ -350,7 +381,7 @@ function iniciarLuces(){
   $("luces").hidden = false; iniciarLuces();
   window.addEventListener("resize", iniciarLuces);
   var quieto = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(!quieto){ $("nieve").hidden = false; iniciarNieve(); $("santa").hidden = false; }
+  if(!quieto){ $("nieve").hidden = false; iniciarNieve(); $("santa").hidden = false; iniciarRegalos(); }
 })();
 
 // ---- Aviso del evento (se oculta solo al pasar la fecha) ----
